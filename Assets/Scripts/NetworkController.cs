@@ -53,6 +53,12 @@ public class NetworkController : MonoBehaviourPunCallbacks
     {
         print("Create Room");
         RoomOptions opt = new RoomOptions() { MaxPlayers = 4 };
+
+        Hashtable roomHash = new Hashtable();
+        roomHash.Add("scoreAcucar", 0);
+        roomHash.Add("scoreOutono", 0);
+        opt.CustomRoomProperties = roomHash;
+
         PhotonNetwork.JoinOrCreateRoom(iRoomName.text, opt, TypedLobby.Default, null);
     }
 
@@ -87,6 +93,12 @@ public class NetworkController : MonoBehaviourPunCallbacks
 
         string roomName = "Sala_" + Random.Range(0, 99);
         RoomOptions opt = new RoomOptions() { MaxPlayers = 4 };
+
+        Hashtable roomHash = new Hashtable();
+        roomHash.Add("scoreAcucar", 0);
+        roomHash.Add("scoreOutono", 0);
+        opt.CustomRoomProperties = roomHash;
+
         PhotonNetwork.CreateRoom("Facens", opt);
     }
 
@@ -100,6 +112,7 @@ public class NetworkController : MonoBehaviourPunCallbacks
 
         Hashtable myHash = new Hashtable();
         myHash.Add("score", 0);
+        
         PhotonNetwork.LocalPlayer.SetCustomProperties(myHash, null, null);
     }
 }

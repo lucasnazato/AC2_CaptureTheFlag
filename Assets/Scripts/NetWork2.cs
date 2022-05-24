@@ -41,7 +41,7 @@ public class NetWork2 : MonoBehaviourPunCallbacks
         print("Connected to server");
 
         PhotonNetwork.JoinLobby();
-        PhotonNetwork.NickName = "Gamer";
+        PhotonNetwork.NickName = "Username";
     }
 
     public override void OnJoinedLobby()
@@ -54,6 +54,12 @@ public class NetWork2 : MonoBehaviourPunCallbacks
     {
         Debug.LogWarning("OnJoinRandomFailed: " + message);
         RoomOptions opt = new RoomOptions() { MaxPlayers = 4 };
+
+        Hashtable roomHash = new Hashtable();
+        roomHash.Add("scoreAcucar", 0);
+        roomHash.Add("scoreOutono", 0);
+        opt.CustomRoomProperties = roomHash;
+
         PhotonNetwork.CreateRoom("Facens", opt);
     }
 
@@ -82,5 +88,15 @@ public class NetWork2 : MonoBehaviourPunCallbacks
     public void CreateFlagAcucar()
     {
         PhotonNetwork.Instantiate(flagAcucar.name, Vector3.zero, Quaternion.identity);
+    }
+
+    public override void OnRoomPropertiesUpdate(Hashtable propertiesThatChanged)
+    {
+        base.OnRoomPropertiesUpdate(propertiesThatChanged);
+    }
+
+    void SetScoreText()
+    {
+
     }
 }

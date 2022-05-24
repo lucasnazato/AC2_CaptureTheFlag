@@ -30,7 +30,7 @@ public class Jump : MonoBehaviour
             return;
         }
 
-        hit = Physics2D.CircleCast(foot.transform.position, .6f, Vector2.down, maxDistance);
+        hit = Physics2D.CircleCast(foot.transform.position, .6f, Vector2.down, maxDistance, mask);
 
         if (hit.collider && !isGrounded)
         {
@@ -56,6 +56,5 @@ public class Jump : MonoBehaviour
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(foot.transform.position + (Vector3.down) * hit.distance, .6f);
         }
-        
     }
 }

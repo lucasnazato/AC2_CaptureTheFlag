@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class WinVolume : MonoBehaviour
 {
@@ -17,7 +18,12 @@ public class WinVolume : MonoBehaviour
                     {
                         if (player.flag.CompareTag("FlagOutono")) 
                         {
-                            print("Team Acucar Won");
+                            player.AddTeamAcucar(1);
+                            player.flag.transform.parent = null;
+                            player.flag.GetComponent<Flag>().ReturnToInitialPosition();
+                            player.hasFlag = false;
+
+                            print("Acucar");
                         }
                     }
 
@@ -28,7 +34,12 @@ public class WinVolume : MonoBehaviour
                     {
                         if (player.flag.CompareTag("FlagAcucar"))
                         {
-                            print("Team Outono Won");
+                            player.AddTeamOutono(1);
+                            player.flag.transform.parent = null;
+                            player.flag.GetComponent<Flag>().ReturnToInitialPosition();
+                            player.hasFlag = false;
+
+                            print("Outono");
                         }
                     }
 

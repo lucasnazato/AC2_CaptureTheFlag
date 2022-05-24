@@ -6,7 +6,9 @@ using Photon.Realtime;
 using TMPro;
 using Cinemachine;
 
-public class MyPlayer : MonoBehaviour
+using Hashtable = ExitGames.Client.Photon.Hashtable;
+
+public class MyPlayer : MonoBehaviourPun, IPunObservable
 {
     public PhotonView view;
     public TMP_Text txtName;
@@ -14,7 +16,7 @@ public class MyPlayer : MonoBehaviour
     Animator animator;
     Move move;
     Gun gun;
-    CapsuleCollider2D collider;
+    CapsuleCollider2D colPlayer;
     Rigidbody2D rb;
 
     CinemachineVirtualCamera cam;
@@ -33,6 +35,9 @@ public class MyPlayer : MonoBehaviour
 
     public GameObject flag;
 
+    public TMP_Text txtAcucarScore;
+    public TMP_Text txtOutonoScore;
+
     void Start()
     {
         txtName.text = view.Owner.NickName;
@@ -41,7 +46,7 @@ public class MyPlayer : MonoBehaviour
         animator = GetComponent<Animator>();
         move = GetComponent<Move>();
         gun = GetComponentInChildren<Gun>();
-        collider = GetComponent<CapsuleCollider2D>();
+        colPlayer = GetComponent<CapsuleCollider2D>();
         rb = GetComponent<Rigidbody2D>();
 
         cam = FindObjectOfType<CinemachineVirtualCamera>();
@@ -55,6 +60,17 @@ public class MyPlayer : MonoBehaviour
         if (view.Owner.CustomProperties.TryGetValue("score", out tmp))
         {
             txtScore.text = tmp.ToString();
+        }
+
+        
+        if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("scoreAcucar", out tmp))
+        {
+            txtAcucarScore.text = tmp.ToString();
+        }
+
+        if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("scoreOutono", out tmp))
+        {
+            txtOutonoScore.text = tmp.ToString();
         }
 
         animator.runtimeAnimatorController = lstAnimators[view.Owner.ActorNumber - 1];
@@ -81,17 +97,13 @@ public class MyPlayer : MonoBehaviour
     {
         if (!view.IsMine) return;
 
-        if (Input.GetKeyDown(KeyCode.F) && hasFlag)
-        {
-            flag.transform.parent = null;
-            flag.GetComponent<Flag>().pickedUp = false;
-            StartCoroutine(ExecuteAfterTime(2));
-        }
-
         if (Input.GetKeyDown(KeyCode.M))
         {
-            view.RPC("AddScore", RpcTarget.All);
+            PhotonNetwork.CurrentRoom.SetCustomProperties(new Hashtable() { { "scoreAcucar", 3} });
         }
+
+        txtAcucarScore.text = "X " + PhotonNetwork.CurrentRoom.CustomProperties["scoreAcucar"].ToString();
+        txtOutonoScore.text = "X " + PhotonNetwork.CurrentRoom.CustomProperties["scoreOutono"].ToString();
     }
 
     public void AddScore(int value)
@@ -113,13 +125,35 @@ public class MyPlayer : MonoBehaviour
         txtScore.text = view.Owner.CustomProperties["score"].ToString();
     }
 
+    public void AddTeamAcucar(int value)
+    {
+        if (view.IsMine)
+        {
+            int scoreTmp = (int)PhotonNetwork.CurrentRoom.CustomProperties["scoreAcucar"];
+            scoreTmp += value;
+
+            PhotonNetwork.CurrentRoom.SetCustomProperties(new Hashtable() { { "scoreAcucar", scoreTmp } });
+        }
+    }
+
+    public void AddTeamOutono(int value)
+    {
+        if (view.IsMine)
+        {
+            int scoreTmp = (int)PhotonNetwork.CurrentRoom.CustomProperties["scoreOutono"];
+            scoreTmp += value;
+
+            PhotonNetwork.CurrentRoom.SetCustomProperties(new Hashtable() { { "scoreOutono", scoreTmp } });
+        }
+    }
+
     public void Die()
     {
         animator.SetTrigger("die");
         move.enabled = false;
         gun.enabled = false;
 
-        collider.enabled = false;
+        colPlayer.enabled = false;
         rb.bodyType = RigidbodyType2D.Kinematic;
 
         Destroy(gameObject, 2);
@@ -133,10 +167,8 @@ public class MyPlayer : MonoBehaviour
         }
     }
 
-    IEnumerator ExecuteAfterTime(float time)
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
-        yield return new WaitForSeconds(time);
-
-        hasFlag = false;
+       // throw new System.NotImplementedException();
     }
 }

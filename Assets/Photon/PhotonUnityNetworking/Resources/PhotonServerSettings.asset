@@ -43,6 +43,9 @@ MonoBehaviour:
   - AddScore
   - InstatiateBullet
   - AddScoreNet
+  - WinStateNet
+  - AddTeamAcucarNet
+  - AddTeamOutonoNet
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

@@ -38,16 +38,6 @@ public class Gun : MonoBehaviour
             view.RPC("InstatiateBullet", RpcTarget.All);
             time = 0;
         }
-        else if (Input.GetButtonDown("Fire2") && time > timeToShoot)
-        {
-            int dir = (render.flipX) ? -1 : 1;
-            Vector2 pos = (render.flipX) ? transform.position - new Vector3(1.8f, 0, 0) : transform.position;
-
-            GameObject tempBullet = PhotonNetwork.Instantiate(bullet.name, pos, transform.rotation);
-            tempBullet.GetComponent<Rigidbody2D>().AddForce(dir * transform.right * bulletForce);
-
-            time = 0;
-        }
     }
 
     [PunRPC]

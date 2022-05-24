@@ -14,6 +14,23 @@ public class Flag : MonoBehaviour
 
     NetWork2 network2;
 
+    Vector3 initialPosition;
+
+    bool respawn = true;
+
+    private void Awake()
+    {
+        network2 = GameObject.FindObjectOfType<NetWork2>();
+
+        GameObject existingFlag = GameObject.FindGameObjectWithTag(gameObject.tag);
+
+        if (existingFlag != null && existingFlag != gameObject)
+        {
+            respawn = false;
+            Destroy(gameObject);
+        }
+    }
+
     private void Start()
     {
         spawnAcucar = GameObject.FindGameObjectsWithTag("SpawnAcucarFlag");
@@ -22,46 +39,67 @@ public class Flag : MonoBehaviour
         if (gameObject.tag == "FlagAcucar")
         {
             transform.position = spawnAcucar[Random.Range(0, spawnAcucar.Length)].transform.position;
+            initialPosition = spawnAcucar[Random.Range(0, spawnAcucar.Length)].transform.position;
         }
         else if (gameObject.tag == "FlagOutono")
         {
             transform.position = spawnOutono[Random.Range(0, spawnOutono.Length)].transform.position;
+            initialPosition = spawnOutono[Random.Range(0, spawnOutono.Length)].transform.position;
         }
-
-        network2 = GameObject.FindObjectOfType<NetWork2>();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
-            if (!collision.gameObject.GetComponent<MyPlayer>().hasFlag)
+            MyPlayer player = collision.gameObject.GetComponent<MyPlayer>();
+
+            if ((gameObject.tag == "FlagAcucar" && player.playerTeam == MyPlayer.Team.TeamAcucar) || (gameObject.tag == "FlagOutono" && player.playerTeam == MyPlayer.Team.TeamOutono))
             {
-                transform.SetParent(collision.transform);
-                transform.localPosition = new Vector3(0, 1f, 0);
-
-                if (pickedUp)
+                ReturnToInitialPosition();
+            }
+            else
+            {
+                if (!player.hasFlag)
                 {
-                    currentOwner.hasFlag = false;
-                }
+                    transform.SetParent(collision.transform);
+                    transform.localPosition = new Vector3(0.5f, 0.5f, 0);
 
-                pickedUp = true;
-                currentOwner = collision.gameObject.GetComponent<MyPlayer>();
-                currentOwner.hasFlag = true;
-                currentOwner.flag = gameObject;
+                    transform.rotation = Quaternion.Euler(0, 0, 270);
+
+                    if (pickedUp)
+                    {
+                        currentOwner.hasFlag = false;
+                    }
+
+                    pickedUp = true;
+                    currentOwner = collision.gameObject.GetComponent<MyPlayer>();
+                    currentOwner.hasFlag = true;
+                    currentOwner.flag = gameObject;
+                }
             }
         }
     }
 
     private void OnDestroy()
     {
-        if (gameObject.tag == "FlagAcucar")
+        if (gameObject.tag == "FlagAcucar" && respawn)
         {
             network2.CreateFlagAcucar();
         }
-        else if (gameObject.tag == "FlagOutono")
+        else if (gameObject.tag == "FlagOutono" && respawn)
         {
             network2.CreateFlagOutono();
         }
+    }
+
+    public void ReturnToInitialPosition()
+    {
+        if (pickedUp)
+        {
+            currentOwner.hasFlag = false;
+        }
+
+        Destroy(gameObject);
     }
 }
